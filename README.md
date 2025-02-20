@@ -54,11 +54,13 @@ Now, you can run the pipeline using:
 <!-- TODO nf-core: update the following command to include all required parameters for a minimal example -->
 
 ```bash
-nextflow run dhslab/chromhmm \
-   -profile <docker/singularity/.../institute> \
-   --input samplesheet.csv \
+nextflow run dhslab/nf-chromhmm \
+   -profile ris \
+   --samplesheet samplesheet.csv \
    --outdir <OUTDIR>
 ```
+
+provide regions file and models through params
 
 > [!WARNING]
 > Please provide pipeline parameters via the CLI or Nextflow `-params-file` option. Custom config files including those provided by the `-c` Nextflow option can be used to provide any configuration _**except for parameters**_; see [docs](https://nf-co.re/docs/usage/getting_started/configuration#custom-configuration-files).

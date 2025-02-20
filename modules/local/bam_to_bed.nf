@@ -9,7 +9,7 @@ process BAM_TO_BED {
     path(regions)
 
     output:
-    path("*.bed")  
+    path("outbin/merged/*.bed")  
 
     script:
     def args = task.ext.args ?: ''

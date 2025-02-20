@@ -60,22 +60,22 @@ workflow CHROMHMM {
     if(params.bam_to_bed) {
         GET_REGIONS()
 
-        // INPUT_CHECK.out.ch_bam
-        // .map { meta, file -> [meta.id, meta, file] }
-        // .map { id, meta, _ ->
-        //     def lines = "${meta.id}\t${meta.mark}\t${meta.filename}"
-        //     return [ "${id}.bam_mark_file.txt", lines + '\n' ]
-        // }
-        // .collectFile { fileName, content -> [ fileName, content ] }
-        // .map { file -> [file.baseName.tokenize(".")[0], file] }
-        // .set { bamtobed_cellmarkfiles }
+        INPUT_CHECK.out.ch_bam
+        .map { meta, file -> [meta.id, meta, file] }
+        .map { id, meta, _ ->
+            def lines = "${meta.id}\t${meta.mark}\t${meta.filename}"
+            return [ "${id}.bam_mark_file.txt", lines + '\n' ]
+        }
+        .collectFile { fileName, content -> [ fileName, content ] }
+        .map { file -> [file.baseName.tokenize(".")[0], file] }
+        .set { bamtobed_cellmarkfiles }
 
-        // INPUT_CHECK.out.ch_bam
-        // .map{meta, file -> [meta.id, file]}
-        // .combine(bamtobed_cellmarkfiles, by: 0)
-        // .set{ch_bam_to_bed}
+        INPUT_CHECK.out.ch_bam
+        .map{meta, file -> [meta.id, file]}
+        .combine(bamtobed_cellmarkfiles, by: 0)
+        .set{ch_bam_to_bed}
 
-        // BAM_TO_BED(ch_bam_to_bed, GET_REGIONS.out.regions)
+        BAM_TO_BED(ch_bam_to_bed, GET_REGIONS.out.regions)
     }
 
     //
@@ -189,8 +189,8 @@ workflow CHROMHMM {
 
 }
 process GET_REGIONS {
-        // output:
-        // path ("regions/"), emit: regions
+        output:
+        path ("regions/"), emit: regions
         label 'process_medium'
         container "nidhidav/nf-chromhmm:v1"
 
