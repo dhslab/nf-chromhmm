@@ -40,17 +40,11 @@ params.fasta = getGenomeAttribute('fasta')
 //
 workflow DHSLAB_CHROMHMM {
 
-    take:
-    samplesheet // channel: samplesheet read in from --input
-
     main:
-
     //
     // WORKFLOW: Run pipeline
     //
-    CHROMHMM (
-        samplesheet
-    )
+    CHROMHMM ()
     emit:
     multiqc_report = CHROMHMM.out.multiqc_report // channel: /path/to/multiqc_report.html
 }
@@ -64,35 +58,9 @@ workflow {
 
     main:
     //
-    // SUBWORKFLOW: Run initialisation tasks
-    //
-    PIPELINE_INITIALISATION (
-        params.version,
-        params.validate_params,
-        params.monochrome_logs,
-        args,
-        params.outdir,
-        params.input
-    )
-
-    //
     // WORKFLOW: Run main workflow
     //
-    DHSLAB_CHROMHMM (
-        PIPELINE_INITIALISATION.out.samplesheet
-    )
-    //
-    // SUBWORKFLOW: Run completion tasks
-    //
-    PIPELINE_COMPLETION (
-        params.email,
-        params.email_on_fail,
-        params.plaintext_email,
-        params.outdir,
-        params.monochrome_logs,
-        params.hook_url,
-        DHSLAB_CHROMHMM.out.multiqc_report
-    )
+    DHSLAB_CHROMHMM ()
 }
 
 /*
