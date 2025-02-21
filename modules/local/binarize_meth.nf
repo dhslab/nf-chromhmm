@@ -5,6 +5,7 @@ process BINARIZE_METH {
 
     input:
     tuple val(meta), path(meth)
+    path(regions_200_bp)
 
     output:
     tuple val(meta.sample), path("methbin"), emit: meth
@@ -15,7 +16,7 @@ process BINARIZE_METH {
     mkdir -p methbin
 
     # Run methfast and generate the initial BED file
-    methfast $meth /storage2/fs1/dspencer/Active/spencerlab/dnidhi/projects/chromhmm/all_samples/binarize/wgbs/regions_200.bed.final > ${meta.sample}-CD34-wgbs.methfast.bed
+    methfast $meth $regions_200_bp > ${meta.sample}-CD34-wgbs.methfast.bed
 
     # Loop through chromosomes 1-22
     for chr in {1..22}; do

@@ -55,10 +55,10 @@ workflow CHROMHMM {
     //
     // MAKE BED FILES FROM BAMS
     //
-    // to do: group by id as that is unique, input should be: id, bam file, cell mark file
+    //
         
     if(params.bam_to_bed) {
-        GET_REGIONS()
+        GET_REGIONS(params.regions)
 
         INPUT_CHECK.out.ch_bam
         .map { meta, file -> [meta.id, meta, file] }
@@ -103,7 +103,7 @@ workflow CHROMHMM {
     // 
     // BINARIZE METH
     //
-    BINARIZE_METH(INPUT_CHECK.out.ch_meth)
+    BINARIZE_METH(INPUT_CHECK.out.ch_meth, GET_REGIONS.out.regions_200_bp)
 
     //
     // MERGE BINARIES
@@ -188,22 +188,28 @@ workflow CHROMHMM {
     versions       = ch_versions                 // channel: [ path(versions.yml) ]
 
 }
+
 process GET_REGIONS {
-        output:
-        path ("regions/"), emit: regions
         label 'process_medium'
         container "nidhidav/nf-chromhmm:v1"
+
+        input:
+        path(regions)
+
+        output:
+        path ("regions/")          , emit: regions
+        path ("regions_200_bp.bed"), emit: regions_200_bp
 
         script:
         """
         mkdir regions
-        awk -F'\\t' 'BEGIN {OFS="\\t"} {print \$1, 0, \$2}' /storage2/fs1/dspencer/Active/spencerlab/dnidhi/projects/chromhmm/all_samples/binarize/wgbs/regions.bed > bedtools_input.bed &&
+        awk -F'\\t' 'BEGIN {OFS="\\t"} {print \$1, 0, \$2}' $regions > bedtools_input.bed &&
         bedtools makewindows -b bedtools_input.bed -w 200 | awk '{if (\$3 - \$2 == 200) print \$0}' > regions_200_bp.bed &&
-        for i in {1..22} X Y; do
+        for i in {1..22}; do
             cat regions_200_bp.bed | grep -w chr\$i > regions/chr\$i.regions.bed
         done
         """
-    }
+}
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
