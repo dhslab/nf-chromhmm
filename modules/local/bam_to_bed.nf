@@ -9,11 +9,11 @@ process BAM_TO_BED {
     path(regions)
 
     output:
-    path("outbin/merged/*.bed")  
+    path("outbin/merged/*.bed"), emit: bed
 
     script:
     def args = task.ext.args ?: ''
-
+    chr = params.XY ? "{1..22} X Y" : "{1..22}"
     """
     # Create directories for outputs
     mkdir -p outbin
@@ -32,7 +32,7 @@ process BAM_TO_BED {
     combined_file=outbin/merged/combined.txt &&
     > \$combined_file &&
 
-    for i in {1..22}; do
+    for i in $chr; do
         sed -i '1,2d' outbin/*chr\${i}_*binary* &&
         paste $regions/chr\${i}.regions.bed outbin/*chr\${i}_*binary* > outbin/merged/chr\${i}.merged.txt &&
         cat outbin/merged/chr\${i}.merged.txt >> \$combined_file

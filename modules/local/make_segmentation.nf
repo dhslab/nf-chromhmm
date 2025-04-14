@@ -5,38 +5,22 @@ process MAKE_SEGMENTATION {
     publishDir "${params.outdir}/make_segmentation", mode: 'copy'
 
     input:
-    tuple val(sample), path(merged_binary)
+    tuple val(sample), path(merged_binary), path(model)
 
     output:
-    tuple val(sample), path("segmentation_results_10/*"), path("segmentation_results_15/*"), path("segmentation_results_20/*"), emit: states
+    tuple val(sample), path("segmentation*/*"), emit: states
 
     script:
     """
-    java \
-    -mx80000M \
-    -jar \
-    ${params.chromhmm} \
-    MakeSegmentation \
-    ${params.model_10} \
-    $merged_binary \
-    segmentation_results_10
+    result="segmentation_\$(echo "$model" | cut -d'.' -f1)"
 
     java \
     -mx80000M \
     -jar \
     ${params.chromhmm} \
     MakeSegmentation \
-    ${params.model_15} \
+    $model \
     $merged_binary \
-    segmentation_results_15
-
-    java \
-    -mx80000M \
-    -jar \
-    ${params.chromhmm} \
-    MakeSegmentation \
-    ${params.model_20} \
-    $merged_binary \
-    segmentation_results_20
+    \$result
     """
 }

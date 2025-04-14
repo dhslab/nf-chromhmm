@@ -5,7 +5,7 @@ process OVERLAP_ENRICH {
     publishDir "${params.outdir}/overlap_enrichment", mode: 'copy'
 
     input:
-    tuple val(sample), path(tenstates), path(fifteenstates), path(twentystates), path(bed)
+    tuple val(sample), path(segmentation_file), path(bed)
 
     output:
     path ("*png"), emit: png
@@ -16,31 +16,15 @@ process OVERLAP_ENRICH {
     mkdir overlap_regions &&
     mv $bed overlap_regions/ &&
 
-    java \
-    -mx80000M \
-    -jar \
-    ${params.chromhmm} \
-    OverlapEnrichment \
-    $tenstates \
-    overlap_regions/ \
-    ${sample}_10_overlap
+    result="\$(echo "$segmentation_file" | cut -d _ -f 1-2)_overlap"
 
     java \
     -mx80000M \
     -jar \
     ${params.chromhmm} \
     OverlapEnrichment \
-    $fifteenstates \
+    $segmentation_file \
     overlap_regions/ \
-    ${sample}_15_overlap
-
-    java \
-    -mx80000M \
-    -jar \
-    ${params.chromhmm} \
-    OverlapEnrichment \
-    $twentystates \
-    overlap_regions/ \
-    ${sample}_20_overlap
+    \$result
     """
 }

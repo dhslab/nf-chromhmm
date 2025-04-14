@@ -1,13 +1,8 @@
 //
-// Check input samplesheet and get read channels
+// Check input samplesheet and seperate files based on file extension
 //
 
-workflow INPUT_CHECK {
-    // TO DO:
-    // marks can only be H3K4me1, H3K4me3, H3K27me3, H3K9me3 , H3K27ac, H3K36me3, methylation
-    // id should be unique
-    // seperate bams, beds - keep unique id and can join on common mark, etc
-    
+workflow INPUT_CHECK {    
     take:
     samplesheet // file: /path/to/samplesheet.csv
 
@@ -41,7 +36,7 @@ def create_data_channel(LinkedHashMap row) {
         exit 1, "ERROR: Invalid mark '${row.mark}'. Allowed values are: ${allowed_marks.join(', ')}"
     }
     if (!file(row.file).exists()) {
-        exit 1, "ERROR: Check samplesheet, file does not exist\n${row.fastq_list}"
+        exit 1, "ERROR: Check samplesheet, file does not exist\n${row.file}"
     }
 
     meta.id       = row.id

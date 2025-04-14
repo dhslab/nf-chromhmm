@@ -26,41 +26,59 @@
      workflows use the "tube map" design for that. See https://nf-co.re/docs/contributing/design_guidelines#examples for examples.   -->
 <!-- TODO nf-core: Fill in short bullet-pointed list of the default steps in the pipeline -->
 
-Runs Make Segmentation and Overlap Enrichment on provided data and models.
+Runs Learn Model, Make Segmentation, and/or Overlap Enrichment on provided data and models.
 
 ## Usage
-
-> [!NOTE]
-> If you are new to Nextflow and nf-core, please refer to [this page](https://nf-co.re/docs/usage/installation) on how to set-up Nextflow. Make sure to [test your setup](https://nf-co.re/docs/usage/introduction#how-to-run-a-pipeline) with `-profile test` before running the workflow on actual data.
-
-<!-- TODO nf-core: Describe the minimum required steps to execute the pipeline, e.g. how to prepare samplesheets.
-     Explain what rows and columns represent. For instance (please edit as appropriate):
-
 First, prepare a samplesheet with your input data that looks as follows:
 
 `samplesheet.csv`:
 
 ```csv
-sample,fastq_1,fastq_2
-CONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz
+id,sample,mark,file
+sample1_H3K27ac_1,sample1,H3K27ac,sample1_H3K27ac_1.narrowPeak
+sample1_H3K27ac_2,sample1,H3K27ac,sample1_H3K27ac_2.narrowPeak
+sample1_H3K27me3_1,sample1,H3K27me3,sample1_H3K27me3_1.sorted.bam
+sample1_H3K27me3_2,sample1,H3K27me3,sample1_H3K27me3_2.sorted.bam
+sample1_H3K36me3_1,sample1,H3K36me3,sample1_H3K36me3_1.sorted.bam
+sample1_H3K36me3_2,sample1,H3K36me3,sample1_H3K36me3_2.sorted.bam
+sample1_H3K4me_1,sample1,H3K4me,sample1_H3K4me_1.narrowPeak
+sample1_H3K4me_2,sample1,H3K4me,sample1_H3K4me_2.narrowPeak
+sample1_H3K4me3_1,sample1,H3K4me3,sample1_H3K4me3_1.narrowPeak
+sample1_H3K4me3_2,sample1,H3K4me3,sample1_H3K4me3_2.narrowPeak
+sample1_H3K9me3_1,sample1,H3K9me3,sample1_H3K9me3_1.narrowPeak
+sample1_H3K9me3_2,sample1,H3K9me3,sample1_H3K9me3_2.narrowPeak
+sample1_wgbs,sample1,methylation,sample1-wgbs.meth.bed.gz
 ```
 
-Each row represents a fastq file (single-end) or a pair of fastq files (paired end).
-
--->
+The accepted file formats for the marks are: .narrowPeak, .bam, .bed.gz
 
 Now, you can run the pipeline using:
-
-<!-- TODO nf-core: update the following command to include all required parameters for a minimal example -->
 
 ```bash
 nextflow run dhslab/nf-chromhmm \
    -profile ris \
    --samplesheet samplesheet.csv \
-   --outdir <OUTDIR>
+   --outdir <OUTDIR> \
+   --make_segmentation/--learn_model
 ```
 
-provide regions file and models through params
+Additional inputs: \
+   --regions: /path/to/regions \
+   --models: /path/to/models \
+   --states:  list of number of states \
+   --beds : /path/to/bed.csv
+
+If multiple states or regions are provided, enter them as a comma-separated list. Examples are in conf folder.
+
+To run overlapenrichment, you need to provide a csv with a bed file with the regions of interest per sample. The sample value should match to the sample value in the samplesheet.
+
+```csv
+sample,bed
+sample_1,/path/to/regions/sample_1.bed
+sample_2,/path/to/regions/sample_2.bed
+```
+
+```
 
 > [!WARNING]
 > Please provide pipeline parameters via the CLI or Nextflow `-params-file` option. Custom config files including those provided by the `-c` Nextflow option can be used to provide any configuration _**except for parameters**_; see [docs](https://nf-co.re/docs/usage/getting_started/configuration#custom-configuration-files).
