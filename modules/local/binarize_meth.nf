@@ -1,7 +1,7 @@
 process BINARIZE_METH {
     label 'process_medium'
     tag "$meta.sample"
-    container "ghcr.io/dhslab/docker-methfast:241008"
+    container "ghcr.io/dhslab/docker-methfast:250531"
 
     input:
     tuple val(meta), path(meth)
@@ -10,13 +10,16 @@ process BINARIZE_METH {
     output:
     tuple val(meta.sample), path("methbin"), emit: meth
 
+    // get param min meth count
+    def min_meth_coverage = params.min_meth_coverage ? "${params.min_meth_coverage}"    : "",
+    
     script:
     """
     # Create output directory
     mkdir -p methbin
 
     # Run methfast and generate the initial BED file
-    methfast $meth $regions_200_bp > ${meta.sample}-CD34-wgbs.methfast.bed
+    methfast $meth $regions_200_bp > ${meta.sample}.methfast.bed
 
     # Loop through chromosomes 1-22
     for chr in {1..22}; do
@@ -27,10 +30,10 @@ process BINARIZE_METH {
             echo "${meta.sample}\tchr\${chr}"
             echo "methylation"
             awk -v chr="chr\${chr}" '(\$1 == chr) {
-                if (\$4 == 0) print 2;
+                if (\$5 < ${min_meth_coverage}) print 2;
                 else if (\$4 > 0 && \$5 < 0.5) print 0;
                 else print 1;
-            }' ${meta.sample}-CD34-wgbs.methfast.bed | head -n -1
+            }' ${meta.sample}.methfast.bed | head -n -1
         } > \$chr_file
     done
     """
