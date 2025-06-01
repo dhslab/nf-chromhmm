@@ -11,7 +11,7 @@ process BINARIZE_METH {
     tuple val(meta.sample), path("methbin"), emit: meth
 
     // get param min meth count
-    def min_meth_coverage = params.min_meth_coverage ? "${params.min_meth_coverage}"    : "",
+    def min_meth_coverage = params.min_meth_coverage ? "${params.min_meth_coverage}"    : "1"
     
     script:
     """
@@ -31,7 +31,7 @@ process BINARIZE_METH {
             echo "methylation"
             awk -v chr="chr\${chr}" '(\$1 == chr) {
                 if (\$5 < ${min_meth_coverage}) print 2;
-                else if (\$4 > 0 && \$5 < 0.5) print 0;
+                else if (\$4 > 0 && \$6 <= 0.5) print 0;
                 else print 1;
             }' ${meta.sample}.methfast.bed | head -n -1
         } > \$chr_file

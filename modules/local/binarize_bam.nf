@@ -14,6 +14,6 @@ process BINARIZE_BAM {
     mkdir bams
     mv *bam bams/ 
     java -mx80000M -jar ${params.chromhmm} BinarizeBam \
-    ${params.regions} bams/ $cellmarkfile bambin/
+    -paired ${params.regions} bams/ $cellmarkfile bambin/
     """
 }
